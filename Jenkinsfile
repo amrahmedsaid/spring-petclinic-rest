@@ -1,36 +1,29 @@
+
 pipeline {
     agent any
-    tools {
-        maven 'Maven-3.8'
-        jdk 'JDK-11'
-    }
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/spring-petclinic/spring-petclinic-rest.git'
+                echo 'Checking out code...'
             }
         }
-        stage('Build') {
-            steps {
-                sh 'mvn clean package -DskipTests'
-            }
-        }
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-        }
-        stage('Docker Build') {
+
+        stage('Build Image') {
             steps {
                 script {
-                    def appImage = docker.build("petclinic-backend:${BUILD_NUMBER}")
-                    appImage.push()
+                    docker.build("amrsaid172/spring-petclinic-rest:${env.BUILD_NUMBER}")
                 }
             }
         }
-        stage('Deploy') {
+
+        stage('Push Image') {
             steps {
-                sh 'docker run --rm -d --name petclinic-backend -p 8081:8080 petclinic-backend:${BUILD_NUMBER}'
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') {
+                        docker.image("amrsaid172/spring-petclinic-rest:${env.BUILD_NUMBER}").push()
+                    }
+                }
             }
         }
     }
