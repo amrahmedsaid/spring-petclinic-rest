@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -8,7 +7,7 @@ pipeline {
                 echo 'Checking out code...'
             }
         }
-
+        
         stage('Build Image') {
             steps {
                 script {
@@ -16,7 +15,7 @@ pipeline {
                 }
             }
         }
-
+        
         stage('Push Image') {
             steps {
                 script {
